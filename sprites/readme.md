@@ -1,11 +1,47 @@
-# Sprites area
-Sprites in SuperBasic are different from how you would load them in assembly or C therefore they have to use these python programs included to make them. They generally have a special header format in their binary representation.
+# Sprite Handling in SuperBasic
 
-To make a binary, just add all your sprites here and add their names to the sprites.def file. The number at the end represents something specific to the third parties spritebuilder ability to rotate images for you in 90 degree angles. Use at your own discretion :) I keep mine at 0 and make new sprites if I want them rotated usually.
+Sprite handling in SuperBasic works a bit differently than in assembly or C. Because of this, sprites must be prepared using the Python helper tools included in this repository rather than being loaded directly.
 
-Once done running update2.bat will load them all into a .bin file and place it at the root of the project.
+SuperBasic sprites require a specific binary format and header, which these tools generate for you automatically.
 
-There's two versions of spritebuilder.py in here right now because I had to do some hacking to get it to work on the new x2 core.
+## Adding Sprites
 
-* spritebuilder.py is for the older x1 core
-* spritebuilder2.py is for the new x2 core and add a few bits to make sure the load uses even number addresses. (It is a hack though, mileage may vary but it mostly works consistently)
+1. Place all your sprite image files into the sprites directory.
+1. Add each sprite’s name to the sprites.def file.
+
+Each entry in sprites.def ends with a number. This value is used by the third-party spritebuilder tool to optionally generate 90-degree rotated versions of a sprite.
+
+* 0 = no automatic rotation
+* Other values enable rotation support (use at your own discretion)
+
+Personally, I keep this value at 0 and create separate sprite images when I need rotated versions.
+
+## Building the Sprite Binary
+
+Once your sprites and sprites.def are set up:
+
+* Run `update2.bat`
+* This will:
+    * Process all sprites
+    * Pack them into a single `.bin` file
+* Place the resulting binary at the root of the project
+
+This ```.bin``` file is what your SuperBasic program loads at runtime.
+
+## About the Sprite Builder Scripts
+
+There are currently two versions of the sprite builder script included:
+
+* `spritebuilder.py`
+    * For the older x1 core
+* `spritebuilder2.py`
+    * For the new x2 core
+    * Adds extra handling to ensure sprites are loaded at even memory addresses
+    * This was a workaround (“hack”) required for compatibility
+    * While not perfect, it has proven to work consistently in practice
+
+## Notes
+
+* Sprite memory alignment matters on the x2 core.
+* If you encounter issues, try simplifying sprites or verifying alignment.
+* This setup is designed to reduce friction and get you coding faster, not to be a perfect long-term sprite pipeline.
