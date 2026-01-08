@@ -7,5 +7,5 @@ cd .\sprites
 
 cd ..
 
-python.exe fnxmgr.zip --port COM110 --copy sprites.bin
-python.exe fnxmgr.zip --port COM10 --binary sample.bas --address 28000
+python.exe fnxmgr.zip --copy sprites.bin
+python.exe fnxmgr.zip --binary sample.bas --address 28000
