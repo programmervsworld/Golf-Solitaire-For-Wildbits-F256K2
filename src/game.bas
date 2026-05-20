@@ -11,19 +11,21 @@ proc initboard()
     for x=1 to 52:?(deck+x)=x:next
 endproc
 proc renderboard()
-    spritecounter = 1
+    spritecounter = 35 
     cardx = 32
     cardy = 24 
     for r=0 to 6 
-	cardx = 16
+	cardx = 90 
         for c=0 to 4
 	    cardno = tableau(r,c)
 	    sprite spritecounter image cardno to cardx,cardy
 	    cardx = cardx + 32
-	    spritecounter = spritecounter + 1
+	    spritecounter = spritecounter  - 1
 	next
 	cardy = cardy + 24 
     next
+    sprite 52 image 52 to 90, 208
+    sprite 53 image 53 to 132, 210
 endproc
 proc shuffledeck()
     cls 
