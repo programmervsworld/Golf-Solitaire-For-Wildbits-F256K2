@@ -1,11 +1,15 @@
 cls
 deck=$7800
 dim tableau(7,5):cardsleft=0
-bitmap on
-bitmap clear 10
-sprites on
+printcenter("Loading backgrounds!", 0)
+bload "background.pal", $7BFF
+loadpal($7BFF, 1)
+bload "background.bin", $10000
+bitmap on:bitmaplut(0,1)
+cls: printcenter("Loading Sprites!", 0)
 bload "sprites.bin", $30000
-gameloop()
+sprites on
+cls:gameloop()
 end
 proc initboard()
     for x=1 to 52:?(deck+x)=x:next
