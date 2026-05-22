@@ -26,14 +26,18 @@ proc renderboard()
 	        cardno = tableau(r,c)
             tableaux(r,c)=cardx
             tableauy(r,c)=cardy
-	        sprite spritecounter image cardno to cardx,cardy
+            if cardno < 255
+	            sprite spritecounter image cardno to cardx,cardy
+            else
+                sprite spritecounter off
+            endif
 	        cardx = cardx + 33
 	        spritecounter = spritecounter  - 1
 	    next
 	    cardy = cardy + 24
     next
     sprite 52 image 52 to 90, 208
-    sprite 53 image 53 to 132, 210
+    sprite 53 image 53 to 132, 2102
 endproc
 proc shuffledeck()
     cls
@@ -100,11 +104,11 @@ proc moveleft()
     while col > 0
         col = col - 1
         row = 6
-        while row > 0
-            if tableau(row, col) > 0
+        while row >= 0
+            if tableau(row, col) < 255
                 cursorCol = col
                 cursorRow = row
-                row = 0
+                row = -1
                 col = 0
             endif
             row = row - 1
@@ -116,11 +120,11 @@ proc moveright()
     for x=(cursorCol+1) to 4
         row = 6
         if found = 0
-            while row > 0
-                if tableau(row,x) > 0
+            while row >= 0
+                if tableau(row,x) < 255
                     cursorCol=x
                     cursorRow=row
-                    row = 0
+                    row = -1
                     found = 1
                 else
                     row = row - 1
@@ -146,6 +150,15 @@ proc updateinput()
             moveright()
             updatecursorpos()
         endif
+    endif
+    if (keypress=32)|(joyb(0)&1)
+        tableau(cursorRow, cursorCol) = 255
+        if cursorRow > 0
+            cursorRow = cursorRow - 1
+            updatecursorpos()
+        endif
+        print "Press!"
+        renderboard()
     endif
 endproc
 proc gameloop()
