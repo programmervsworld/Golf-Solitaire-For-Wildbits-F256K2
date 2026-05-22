@@ -43,7 +43,7 @@
 1420 next
 1430 cardy = cardy + 24
 1440 next
-1450 sprite 52 image 52 to 90, 208
+1450 sprite 52 image 52 to 94, 208
 1460 sprite 53 image 53 to 132, 2102
 1470 endproc
 1480 proc shuffledeck()

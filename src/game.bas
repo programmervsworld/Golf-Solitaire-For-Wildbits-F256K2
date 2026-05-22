@@ -47,7 +47,7 @@ proc renderboard()
 	    next
 	    cardy = cardy + 24
     next
-    sprite 52 image 52 to 90, 208
+    sprite 52 image 52 to 94, 208
     sprite 53 image 53 to 132, 2102
 endproc
 proc shuffledeck()
