@@ -21,7 +21,7 @@ proc renderboard()
     cardx = 32
     cardy = 24
     for r=0 to 6
-	    cardx = 90
+	    cardx = 92
         for c=0 to 4
 	        cardno = tableau(r,c)
             tableaux(r,c)=cardx
@@ -94,6 +94,41 @@ proc printdebugstuff()
     print "col: "+str$(cursorCol)+" "
     print "row: "+str$(cursorRow)+" "
 endproc
+proc moveleft()
+    col = cursorCol
+    row = 6
+    while col > 0
+        col = col - 1
+        row = 6
+        while row > 0
+            if tableau(row, col) > 0
+                cursorCol = col
+                cursorRow = row
+                row = 0
+                col = 0
+            endif
+            row = row - 1
+        wend
+    wend
+endproc
+proc moveright()
+    found = 0
+    for x=(cursorCol+1) to 4
+        row = 6
+        if found = 0
+            while row > 0
+                if tableau(row,x) > 0
+                    cursorCol=x
+                    cursorRow=row
+                    row = 0
+                    found = 1
+                else
+                    row = row - 1
+                endif
+            wend
+        endif
+    next
+endproc
 proc updatecursorpos()
     sprite 0 to tableaux(cursorRow,cursorCol),tableauy(cursorRow,cursorCol)
 endproc
@@ -102,13 +137,13 @@ proc updateinput()
     keypress=inkey()
     if (keypress=2)|(joyx(0)=-1)
         if cursorCol > 0
-            cursorCol=cursorCol-1
+            moveleft()
             updatecursorpos()
         endif
     endif
     if (keypress=6)|(joyx(0)=1)
         if cursorCol < 4
-            cursorCol=cursorCol+1
+            moveright()
             updatecursorpos()
         endif
     endif

@@ -21,7 +21,7 @@
 1200 cardx = 32
 1210 cardy = 24
 1220 for r=0 to 6
-1230 cardx = 90
+1230 cardx = 92
 1240 for c=0 to 4
 1250 cardno = tableau(r,c)
 1260 tableaux(r,c)=cardx
@@ -94,35 +94,70 @@
 1930 print "col: "+str$(cursorCol)+" "
 1940 print "row: "+str$(cursorRow)+" "
 1950 endproc
-1960 proc updatecursorpos()
-1970 sprite 0 to tableaux(cursorRow,cursorCol),tableauy(cursorRow,cursorCol)
-1980 endproc
-1990 proc updateinput()
-2000 local keypress
-2010 keypress=inkey()
-2020 if (keypress=2)|(joyx(0)=-1)
-2030 if cursorCol > 0
-2040 cursorCol=cursorCol-1
-2050 updatecursorpos()
-2060 endif
-2070 endif
-2080 if (keypress=6)|(joyx(0)=1)
-2090 if cursorCol < 4
-2100 cursorCol=cursorCol+1
-2110 updatecursorpos()
-2120 endif
-2130 endif
-2140 endproc
-2150 proc gameloop()
-2160 setup()
-2170 updatecursorpos()
-2180 repeat
-2190 if event(tevent, 5)
-2200 updateinput()
-2210 if debugmode=true
-2220 printdebugstuff()
-2230 endif
-2240 endif
-2250 until isRunning=0
-2260 endproc
+1960 proc moveleft()
+1970 col = cursorCol
+1980 row = 6
+1990 while col > 0
+2000 col = col - 1
+2010 row = 6
+2020 while row > 0
+2030 if tableau(row, col) > 0
+2040 cursorCol = col
+2050 cursorRow = row
+2060 row = 0
+2070 col = 0
+2080 endif
+2090 row = row - 1
+2100 wend
+2110 wend
+2120 endproc
+2130 proc moveright()
+2140 found = 0
+2150 for x=(cursorCol+1) to 4
+2160 row = 6
+2170 if found = 0
+2180 while row > 0
+2190 if tableau(row,x) > 0
+2200 cursorCol=x
+2210 cursorRow=row
+2220 row = 0
+2230 found = 1
+2240 else
+2250 row = row - 1
+2260 endif
+2270 wend
+2280 endif
+2290 next
+2300 endproc
+2310 proc updatecursorpos()
+2320 sprite 0 to tableaux(cursorRow,cursorCol),tableauy(cursorRow,cursorCol)
+2330 endproc
+2340 proc updateinput()
+2350 local keypress
+2360 keypress=inkey()
+2370 if (keypress=2)|(joyx(0)=-1)
+2380 if cursorCol > 0
+2390 moveleft()
+2400 updatecursorpos()
+2410 endif
+2420 endif
+2430 if (keypress=6)|(joyx(0)=1)
+2440 if cursorCol < 4
+2450 moveright()
+2460 updatecursorpos()
+2470 endif
+2480 endif
+2490 endproc
+2500 proc gameloop()
+2510 setup()
+2520 updatecursorpos()
+2530 repeat
+2540 if event(tevent, 5)
+2550 updateinput()
+2560 if debugmode=true
+2570 printdebugstuff()
+2580 endif
+2590 endif
+2600 until isRunning=0
+2610 endproc
 ÿÿÿÿ
