@@ -1,20 +1,31 @@
-cls
-deck=$7800
-cursolCol=0:cursorRow=6:isRunning=1:tevent=0
-debugmode=true
-dim tableau(7,5):dim tableaux(7,5):dim tableauy(7,5):cardsleft=0
+#define DECK_BEGIN $7800
+#define BG_PAL_START $7BFF
+#define BG_MAIN_START $10000
+#define SPRITE_START $30000
+REM "Setup Variables and Start Loop"
+cls:cursorCol=0:cursorRow=6:isRunning=1:tevent=0
+debugmode=true:cursorVal=0:cardsleft=0
+REM "This structure holds the card field and their x,y positions"
+dim tableau(7,5):dim tableaux(7,5):dim tableauy(7,5)
 printcenter("Loading backgrounds!", 0)
-bload "background.pal", $7BFF
+bload "background.pal", BG_PAL_START
 loadpal($7BFF, 1)
-bload "background.bin", $10000
+bload "background.bin", BG_MAIN_START
 bitmap on:bitmaplut(0,1)
 cls: printcenter("Loading Sprites!", 0)
-bload "sprites.bin", $30000
+bload "sprites.bin", SPRITE_START
 sprites on
 cls:gameloop()
 end
 proc initboard()
-    for x=1 to 52:?(deck+x)=x:next
+    for x=1 to 52:?(DECK_BEGIN+x)=x:next
+endproc
+proc getcursorval()
+    card = tableau(cursorRow,cursorCol)+1
+    while card > 13
+        card = card - 13
+    wend
+    cursorVal = card
 endproc
 proc renderboard()
     spritecounter = 35
@@ -45,13 +56,13 @@ proc shuffledeck()
     swapidx=0:swapval=0
     for x=0 to 51
         swapidx=random(50)+1
-        swapval=?(deck+swapidx)
-        ?(deck+swapidx)=?(deck)
-        ?(deck)=swapval
+        swapval=?(DECK_BEGIN+swapidx)
+        ?(DECK_BEGIN+swapidx)=?(DECK_BEGIN)
+        ?(DECK_BEGIN)=swapval
         swapidx=random(50)+1
-        swapval=?(deck+swapidx)
-        ?(deck+swapidx)=?(deck+51)
-        ?(deck+51)=swapval
+        swapval=?(DECK_BEGIN+swapidx)
+        ?(DECK_BEGIN+swapidx)=?(DECK_BEGIN+51)
+        ?(DECK_BEGIN+51)=swapval
     next
     cls
 endproc
@@ -59,7 +70,7 @@ proc dealtoboard()
     index=0
     for r=0 to 7
         for c=0 to 5
-	    tableau(r,c)=?(deck+index)
+	    tableau(r,c)=?(DECK_BEGIN+index)
 	    index=index+1
 	next
     next
@@ -97,6 +108,7 @@ proc printdebugstuff()
     print at 0,0 "";
     print "col: "+str$(cursorCol)+" "
     print "row: "+str$(cursorRow)+" "
+    print "val: "+str$(cursorVal)+" "
 endproc
 proc moveleft()
     col = cursorCol
@@ -114,6 +126,7 @@ proc moveleft()
             row = row - 1
         wend
     wend
+    getcursorval()
 endproc
 proc moveright()
     found = 0
@@ -132,6 +145,7 @@ proc moveright()
             wend
         endif
     next
+    getcursorval()
 endproc
 proc updatecursorpos()
     sprite 0 to tableaux(cursorRow,cursorCol),tableauy(cursorRow,cursorCol)
@@ -164,6 +178,7 @@ endproc
 proc gameloop()
     setup()
     updatecursorpos()
+    getcursorval()
     repeat
         if event(tevent, 5)
             updateinput()
