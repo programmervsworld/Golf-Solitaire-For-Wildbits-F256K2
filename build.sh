@@ -4,10 +4,10 @@ rm -f sample.bas
 rm -f sprites.bin
 
 cat src/game.bas | python3 number.py > bwgolf.bas
-cd sprites
-./update2.sh
+#cd sprites
+#./update2.sh
 
-cd ..
+#cd ..
 #sudo python3 fnxmgr.zip --copy sprites.bin
 #read -n 1 -s -p "Press any key to continue..."
 

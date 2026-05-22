@@ -1,6 +1,8 @@
 cls
 deck=$7800
-dim tableau(7,5):cardsleft=0
+cursolCol=0:cursorRow=6:isRunning=1:tevent=0
+debugmode=true
+dim tableau(7,5):dim tableaux(7,5):dim tableauy(7,5):cardsleft=0
 printcenter("Loading backgrounds!", 0)
 bload "background.pal", $7BFF
 loadpal($7BFF, 1)
@@ -15,24 +17,26 @@ proc initboard()
     for x=1 to 52:?(deck+x)=x:next
 endproc
 proc renderboard()
-    spritecounter = 35 
+    spritecounter = 35
     cardx = 32
-    cardy = 24 
-    for r=0 to 6 
-	cardx = 90 
+    cardy = 24
+    for r=0 to 6
+	    cardx = 90
         for c=0 to 4
-	    cardno = tableau(r,c)
-	    sprite spritecounter image cardno to cardx,cardy
-	    cardx = cardx + 32
-	    spritecounter = spritecounter  - 1
-	next
-	cardy = cardy + 24 
+	        cardno = tableau(r,c)
+            tableaux(r,c)=cardx
+            tableauy(r,c)=cardy
+	        sprite spritecounter image cardno to cardx,cardy
+	        cardx = cardx + 33
+	        spritecounter = spritecounter  - 1
+	    next
+	    cardy = cardy + 24
     next
     sprite 52 image 52 to 90, 208
     sprite 53 image 53 to 132, 210
 endproc
 proc shuffledeck()
-    cls 
+    cls
     printcenter("Shuffling!",0)
     swapidx=0:swapval=0
     for x=0 to 51
@@ -44,13 +48,13 @@ proc shuffledeck()
         swapval=?(deck+swapidx)
         ?(deck+swapidx)=?(deck+51)
         ?(deck+51)=swapval
-    next  
+    next
     cls
-endproc 
+endproc
 proc dealtoboard()
     index=0
     for r=0 to 7
-        for c=0 to 5 
+        for c=0 to 5
 	    tableau(r,c)=?(deck+index)
 	    index=index+1
 	next
@@ -82,8 +86,42 @@ proc setup()
     initboard()
     shuffledeck()
     dealtoboard()
+    sprite 0 image 54
     renderboard()
+endproc
+proc printdebugstuff()
+    print at 0,0 "";
+    print "col: "+str$(cursorCol)+" "
+    print "row: "+str$(cursorRow)+" "
+endproc
+proc updatecursorpos()
+    sprite 0 to tableaux(cursorRow,cursorCol),tableauy(cursorRow,cursorCol)
+endproc
+proc updateinput()
+    local keypress
+    keypress=inkey()
+    if (keypress=2)|(joyx(0)=-1)
+        if cursorCol > 0
+            cursorCol=cursorCol-1
+            updatecursorpos()
+        endif
+    endif
+    if (keypress=6)|(joyx(0)=1)
+        if cursorCol < 4
+            cursorCol=cursorCol+1
+            updatecursorpos()
+        endif
+    endif
 endproc
 proc gameloop()
     setup()
+    updatecursorpos()
+    repeat
+        if event(tevent, 5)
+            updateinput()
+            if debugmode=true
+                printdebugstuff()
+            endif
+        endif
+    until isRunning=0
 endproc
