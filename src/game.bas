@@ -4,7 +4,7 @@
 #define SPRITE_START $30000
 REM "Setup Variables and Start Loop"
 cls:cursorCol=0:cursorRow=6:isRunning=1:tevent=0
-debugmode=true:cursorVal=0:cardsleft=0
+debugmode=true:cursorVal=0:cardsleft=0:discardptr=0
 REM "This structure holds the card field and their x,y positions"
 dim tableau(7,5):dim tableaux(7,5):dim tableauy(7,5)
 printcenter("Loading backgrounds!", 0)
@@ -48,7 +48,7 @@ proc renderboard()
 	    cardy = cardy + 24
     next
     sprite 52 image 52 to 94, 208
-    sprite 53 image 53 to 132, 2102
+    sprite 53 image ?(DECK_BEGIN+discardptr) to 125, 206
 endproc
 proc shuffledeck()
     cls
@@ -68,13 +68,14 @@ proc shuffledeck()
 endproc
 proc dealtoboard()
     index=0
-    for r=0 to 7
-        for c=0 to 5
+    for r=0 to 6
+        for c=0 to 4
 	    tableau(r,c)=?(DECK_BEGIN+index)
 	    index=index+1
 	next
     next
     cardsleft=index
+    discardptr=35
 endproc
 proc update()
 endproc
@@ -109,6 +110,8 @@ proc printdebugstuff()
     print "col: "+str$(cursorCol)+" "
     print "row: "+str$(cursorRow)+" "
     print "val: "+str$(cursorVal)+" "
+    print "lef: "+str$(cardsleft)+" "
+    print "dis: "+str$(discardptr)+" "
 endproc
 proc moveleft()
     col = cursorCol
@@ -163,6 +166,12 @@ proc updateinput()
         if cursorCol < 4
             moveright()
             updatecursorpos()
+        endif
+    endif
+    if (keypress=100)
+        if discardptr < 52
+            discardptr = discardptr + 1
+            renderboard()
         endif
     endif
     if (keypress=32)|(joyb(0)&1)
