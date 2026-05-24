@@ -1,6 +1,6 @@
 1000 REM "Setup Variables and Start Loop"
 1010 cls:cursorCol=0:cursorRow=6:isRunning=1:tevent=0
-1020 debugmode=true:cursorVal=0:cardsleft=0:discardptr=0
+1020 debugmode=true:cursorVal=0:cardsleft=0:discardptr=0:discardval=0
 1030 REM "This structure holds the card field and their x,y positions"
 1040 dim tableau(7,5):dim tableaux(7,5):dim tableauy(7,5)
 1050 printcenter("Loading backgrounds!", 0)
@@ -23,174 +23,190 @@
 1220 wend
 1230 cursorVal = card
 1240 endproc
-1250 proc renderboard()
-1260 spritecounter = 35
-1270 cardx = 32
-1280 cardy = 24
-1290 for r=0 to 6
-1300 cardx = 92
-1310 for c=0 to 4
-1320 cardno = tableau(r,c)
-1330 tableaux(r,c)=cardx
-1340 tableauy(r,c)=cardy
-1350 if cardno < 255
-1360 sprite spritecounter image cardno to cardx,cardy
-1370 else
-1380 sprite spritecounter off
-1390 endif
-1400 cardx = cardx + 33
-1410 spritecounter = spritecounter  - 1
-1420 next
-1430 cardy = cardy + 24
-1440 next
-1450 sprite 52 image 52 to 94, 208
-1460 sprite 53 image ?($7800+discardptr) to 125, 206
-1470 endproc
-1480 proc shuffledeck()
-1490 cls
-1500 printcenter("Shuffling!",0)
-1510 swapidx=0:swapval=0
-1520 for x=0 to 51
-1530 swapidx=random(50)+1
-1540 swapval=?($7800+swapidx)
-1550 ?($7800+swapidx)=?($7800)
-1560 ?($7800)=swapval
-1570 swapidx=random(50)+1
-1580 swapval=?($7800+swapidx)
-1590 ?($7800+swapidx)=?($7800+51)
-1600 ?($7800+51)=swapval
-1610 next
-1620 cls
-1630 endproc
-1640 proc dealtoboard()
-1650 index=0
-1660 for r=0 to 6
-1670 for c=0 to 4
-1680 tableau(r,c)=?($7800+index)
-1690 index=index+1
-1700 next
-1710 next
-1720 cardsleft=index
-1730 discardptr=35
-1740 endproc
-1750 proc update()
-1760 endproc
-1770 proc bitmaplut(bitmapno,lutno)
-1780 if bitmapno>=0&bitmapno<3&lutno>=0&lutno<4
-1790 add$="53504,53512,53520"
-1800 value=val(itemget$(add$,bitmapno+1,","))
-1810 current=?(value)
-1820 poke value,(1|1<<lutno)
-1830 else
-1840 print "bitmaplut must have a bitmap between 0-2 and a lut 0-3!"
-1850 endif
-1860 endproc
-1870 proc loadpal(addr,lutno)
-1880 lutaddr=$D000+(lutno*$400)
-1890 poke 1,1
-1900 for x=0 to 1023:?(lutaddr+x)=?(addr+x):next
-1910 endproc
-1920 proc printcenter(msg$, yoffset)
-1930 xoffset=len(msg$)\2
-1940 print at 30+yoffset,(40-xoffset)msg$
-1950 endproc
-1960 proc setup()
-1970 initboard()
-1980 shuffledeck()
-1990 dealtoboard()
-2000 sprite 0 image 54
-2010 renderboard()
-2020 endproc
-2030 proc printdebugstuff()
-2040 print at 0,0 "";
-2050 print "col: "+str$(cursorCol)+" "
-2060 print "row: "+str$(cursorRow)+" "
-2070 print "val: "+str$(cursorVal)+" "
-2080 print "lef: "+str$(cardsleft)+" "
-2090 print "dis: "+str$(discardptr)+" "
-2100 endproc
-2110 proc moveleft()
-2120 col = cursorCol
-2130 row = 6
-2140 while col > 0
-2150 col = col - 1
-2160 row = 6
-2170 while row >= 0
-2180 if tableau(row, col) < 255
-2190 cursorCol = col
-2200 cursorRow = row
-2210 row = -1
-2220 col = 0
-2230 endif
-2240 row = row - 1
-2250 wend
-2260 wend
-2270 getcursorval()
-2280 endproc
-2290 proc moveright()
-2300 found = 0
-2310 for x=(cursorCol+1) to 4
-2320 row = 6
-2330 if found = 0
-2340 while row >= 0
-2350 if tableau(row,x) < 255
-2360 cursorCol=x
-2370 cursorRow=row
-2380 row = -1
-2390 found = 1
-2400 else
-2410 row = row - 1
-2420 endif
-2430 wend
-2440 endif
-2450 next
-2460 getcursorval()
-2470 endproc
-2480 proc updatecursorpos()
-2490 sprite 0 to tableaux(cursorRow,cursorCol),tableauy(cursorRow,cursorCol)
-2500 endproc
-2510 proc updateinput()
-2520 local keypress
-2530 keypress=inkey()
-2540 if (keypress=2)|(joyx(0)=-1)
-2550 if cursorCol > 0
-2560 moveleft()
-2570 updatecursorpos()
-2580 endif
-2590 endif
-2600 if (keypress=6)|(joyx(0)=1)
-2610 if cursorCol < 4
-2620 moveright()
-2630 updatecursorpos()
-2640 endif
-2650 endif
-2660 if (keypress=100)
-2670 if discardptr < 52
-2680 discardptr = discardptr + 1
-2690 renderboard()
-2700 endif
-2710 endif
-2720 if (keypress=32)|(joyb(0)&1)
-2730 tableau(cursorRow, cursorCol) = 255
-2740 if cursorRow > 0
-2750 cursorRow = cursorRow - 1
-2760 updatecursorpos()
-2770 endif
-2780 print "Press!"
+1250 proc getdiscardval()
+1260 disc = ?($7800+discardptr)+1
+1270 while disc > 13
+1280 disc = disc - 13
+1290 wend
+1300 discardval = disc
+1310 endproc
+1320 proc renderboard()
+1330 spritecounter = 35
+1340 cardx = 32
+1350 cardy = 24
+1360 for r=0 to 6
+1370 cardx = 90
+1380 for c=0 to 4
+1390 cardno = tableau(r,c)
+1400 tableaux(r,c)=cardx
+1410 tableauy(r,c)=cardy
+1420 if cardno < 255
+1430 sprite spritecounter image cardno to cardx,cardy
+1440 else
+1450 sprite spritecounter off
+1460 endif
+1470 cardx = cardx + 36
+1480 spritecounter = spritecounter  - 1
+1490 next
+1500 cardy = cardy + 24
+1510 next
+1520 sprite 52 image 52 to 94, 208
+1530 endproc
+1540 proc shuffledeck()
+1550 cls
+1560 printcenter("Shuffling!",0)
+1570 swapidx=0:swapval=0
+1580 for x=0 to 51
+1590 swapidx=random(50)+1
+1600 swapval=?($7800+swapidx)
+1610 ?($7800+swapidx)=?($7800)
+1620 ?($7800)=swapval
+1630 swapidx=random(50)+1
+1640 swapval=?($7800+swapidx)
+1650 ?($7800+swapidx)=?($7800+51)
+1660 ?($7800+51)=swapval
+1670 next
+1680 cls
+1690 endproc
+1700 proc dealtoboard()
+1710 index=0
+1720 for r=0 to 6
+1730 for c=0 to 4
+1740 tableau(r,c)=?($7800+index)
+1750 index=index+1
+1760 next
+1770 next
+1780 cardsleft=index
+1790 discardptr=35
+1800 endproc
+1810 proc update()
+1820 endproc
+1830 proc bitmaplut(bitmapno,lutno)
+1840 if bitmapno>=0&bitmapno<3&lutno>=0&lutno<4
+1850 add$="53504,53512,53520"
+1860 value=val(itemget$(add$,bitmapno+1,","))
+1870 current=?(value)
+1880 poke value,(1|1<<lutno)
+1890 else
+1900 print "bitmaplut must have a bitmap between 0-2 and a lut 0-3!"
+1910 endif
+1920 endproc
+1930 proc loadpal(addr,lutno)
+1940 lutaddr=$D000+(lutno*$400)
+1950 poke 1,1
+1960 for x=0 to 1023:?(lutaddr+x)=?(addr+x):next
+1970 endproc
+1980 proc printcenter(msg$, yoffset)
+1990 xoffset=len(msg$)\2
+2000 print at 30+yoffset,(40-xoffset)msg$
+2010 endproc
+2020 proc setup()
+2030 initboard()
+2040 shuffledeck()
+2050 dealtoboard()
+2060 sprite 0 image 54
+2070 renderboard()
+2080 getdiscardval()
+2090 endproc
+2100 proc printdebugstuff()
+2110 print at 0,0 "";
+2120 print "col: "+str$(cursorCol)+" "
+2130 print "row: "+str$(cursorRow)+" "
+2140 print "val: "+str$(cursorVal)+" "
+2150 print "lef: "+str$(cardsleft)+" "
+2160 print "dis: "+str$(discardptr)+" "
+2170 print "dsv: "+str$(discardval)+" "
+2180 endproc
+2190 proc moveleft()
+2200 col = cursorCol
+2210 row = 6
+2220 while col > 0
+2230 col = col - 1
+2240 row = 6
+2250 while row >= 0
+2260 if tableau(row, col) < 255
+2270 cursorCol = col
+2280 cursorRow = row
+2290 row = -1
+2300 col = 0
+2310 endif
+2320 row = row - 1
+2330 wend
+2340 wend
+2350 getcursorval()
+2360 endproc
+2370 proc moveright()
+2380 found = 0
+2390 for x=(cursorCol+1) to 4
+2400 row = 6
+2410 if found = 0
+2420 while row >= 0
+2430 if tableau(row,x) < 255
+2440 cursorCol=x
+2450 cursorRow=row
+2460 row = -1
+2470 found = 1
+2480 else
+2490 row = row - 1
+2500 endif
+2510 wend
+2520 endif
+2530 next
+2540 getcursorval()
+2550 endproc
+2560 proc updatecursorpos()
+2570 sprite 0 to tableaux(cursorRow,cursorCol),tableauy(cursorRow,cursorCol)
+2580 endproc
+2590 proc updateinput()
+2600 local keypress
+2610 keypress=inkey()
+2620 if (keypress=2)|(joyx(0)=-1)
+2630 if cursorCol > 0
+2640 moveleft()
+2650 updatecursorpos()
+2660 endif
+2670 endif
+2680 if (keypress=6)|(joyx(0)=1)
+2690 if cursorCol < 4
+2700 moveright()
+2710 updatecursorpos()
+2720 endif
+2730 endif
+2740 if (keypress=100)
+2750 if discardptr < 52
+2760 discardptr = discardptr + 1
+2770 sprite 53 image ?($7800+discardptr) to 125, 206
+2780 getdiscardval()
 2790 renderboard()
 2800 endif
-2810 endproc
-2820 proc gameloop()
-2830 setup()
-2840 updatecursorpos()
-2850 getcursorval()
-2860 repeat
-2870 if event(tevent, 5)
-2880 updateinput()
-2890 if debugmode=true
-2900 printdebugstuff()
+2810 endif
+2820 if (keypress=32)|(joyb(0)&1)
+2830 if discardval = (cursorVal - 1)|discardval = (cursorVal + 1)
+2840 sprite 53 image tableau(cursorRow, cursorCol)
+2850 discardval=cursorVal
+2860 tableau(cursorRow, cursorCol) = 255
+2870 if cursorRow > 0
+2880 cursorRow = cursorRow - 1
+2890 getcursorval()
+2900 updatecursorpos()
 2910 endif
-2920 endif
-2930 until isRunning=0
-2940 endproc
+2920 print "Press!"
+2930 renderboard()
+2940 endif
+2950 endif
+2960 endproc
+2970 proc gameloop()
+2980 setup()
+2990 updatecursorpos()
+3000 getcursorval()
+3010 sprite 53 image ?($7800+discardptr) to 125, 206
+3020 repeat
+3030 if event(tevent, 5)
+3040 updateinput()
+3050 if debugmode=true
+3060 printdebugstuff()
+3070 endif
+3080 endif
+3090 until isRunning=0
+3100 endproc
 ÿÿÿÿ

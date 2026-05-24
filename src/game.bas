@@ -4,7 +4,7 @@
 #define SPRITE_START $30000
 REM "Setup Variables and Start Loop"
 cls:cursorCol=0:cursorRow=6:isRunning=1:tevent=0
-debugmode=true:cursorVal=0:cardsleft=0:discardptr=0
+debugmode=true:cursorVal=0:cardsleft=0:discardptr=0:discardval=0
 REM "This structure holds the card field and their x,y positions"
 dim tableau(7,5):dim tableaux(7,5):dim tableauy(7,5)
 printcenter("Loading backgrounds!", 0)
@@ -27,12 +27,19 @@ proc getcursorval()
     wend
     cursorVal = card
 endproc
+proc getdiscardval()
+    disc = ?(DECK_BEGIN+discardptr)+1
+    while disc > 13
+        disc = disc - 13
+    wend
+    discardval = disc
+endproc
 proc renderboard()
     spritecounter = 35
     cardx = 32
     cardy = 24
     for r=0 to 6
-	    cardx = 92
+	    cardx = 90
         for c=0 to 4
 	        cardno = tableau(r,c)
             tableaux(r,c)=cardx
@@ -42,13 +49,12 @@ proc renderboard()
             else
                 sprite spritecounter off
             endif
-	        cardx = cardx + 33
+	        cardx = cardx + 36
 	        spritecounter = spritecounter  - 1
 	    next
 	    cardy = cardy + 24
     next
     sprite 52 image 52 to 94, 208
-    sprite 53 image ?(DECK_BEGIN+discardptr) to 125, 206
 endproc
 proc shuffledeck()
     cls
@@ -104,6 +110,7 @@ proc setup()
     dealtoboard()
     sprite 0 image 54
     renderboard()
+    getdiscardval()
 endproc
 proc printdebugstuff()
     print at 0,0 "";
@@ -112,6 +119,7 @@ proc printdebugstuff()
     print "val: "+str$(cursorVal)+" "
     print "lef: "+str$(cardsleft)+" "
     print "dis: "+str$(discardptr)+" "
+    print "dsv: "+str$(discardval)+" "
 endproc
 proc moveleft()
     col = cursorCol
@@ -171,23 +179,31 @@ proc updateinput()
     if (keypress=100)
         if discardptr < 52
             discardptr = discardptr + 1
+            sprite 53 image ?(DECK_BEGIN+discardptr) to 125, 206
+            getdiscardval()
             renderboard()
         endif
     endif
     if (keypress=32)|(joyb(0)&1)
-        tableau(cursorRow, cursorCol) = 255
-        if cursorRow > 0
-            cursorRow = cursorRow - 1
-            updatecursorpos()
+        if discardval = (cursorVal - 1)|discardval = (cursorVal + 1)
+            sprite 53 image tableau(cursorRow, cursorCol)
+            discardval=cursorVal
+            tableau(cursorRow, cursorCol) = 255
+            if cursorRow > 0
+                cursorRow = cursorRow - 1
+                getcursorval()
+                updatecursorpos()
+            endif
+            print "Press!"
+            renderboard()
         endif
-        print "Press!"
-        renderboard()
     endif
 endproc
 proc gameloop()
     setup()
     updatecursorpos()
     getcursorval()
+    sprite 53 image ?(DECK_BEGIN+discardptr) to 125, 206
     repeat
         if event(tevent, 5)
             updateinput()
