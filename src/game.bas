@@ -8,17 +8,35 @@ debugmode=true:cursorVal=0:cardsleft=0:discardptr=0:discardval=0
 REM "This structure holds the card field and their x,y positions"
 dim tableau(7,5):dim tableaux(7,5):dim tableauy(7,5)
 printcenter("Loading backgrounds!", 0)
-bload "background.pal", BG_PAL_START
-loadpal($7BFF, 1)
-bload "background.bin", BG_MAIN_START
-bitmap on:bitmaplut(0,1)
-cls: printcenter("Loading Sprites!", 0)
-bload "sprites.bin", SPRITE_START
-sprites on
 cls:gameloop()
 end
 proc initboard()
     for x=1 to 52:?(DECK_BEGIN+x)=x:next
+    bload "background.pal", BG_PAL_START
+    loadpal($7BFF, 1)
+    bload "background.bin", BG_MAIN_START
+    bitmap on:bitmaplut(0,1)
+    cls: printcenter("Loading Sprites!", 0)
+    bload "sprites.bin", SPRITE_START
+    sprites on
+endproc
+proc checkforlose()
+    if discardptr = 52
+        sprites off
+        bitmap clear 3
+        printcenter("You Lose! Hit Return Key To Play Again!", 0)
+        input throwaway$
+        cls:gameloop()
+    endif
+endproc
+proc checkforwin()
+    if cardsleft = 0
+          sprites off
+        bitmap clear 3
+        printcenter("You Won! Hit Return Key To Play Again!", 0)
+        input throwaway$
+        cls:gameloop()
+    endif
 endproc
 proc getcursorval()
     card = tableau(cursorRow,cursorCol)+1
@@ -54,7 +72,7 @@ proc renderboard()
 	    next
 	    cardy = cardy + 24
     next
-    sprite 52 image 52 to 94, 208
+    sprite 52 image 52 to 92, 208
 endproc
 proc shuffledeck()
     cls
@@ -179,7 +197,7 @@ proc updateinput()
     if (keypress=100)
         if discardptr < 52
             discardptr = discardptr + 1
-            sprite 53 image ?(DECK_BEGIN+discardptr) to 125, 206
+            sprite 53 image ?(DECK_BEGIN+discardptr) to 126, 206
             getdiscardval()
             renderboard()
         endif
@@ -203,8 +221,10 @@ proc gameloop()
     setup()
     updatecursorpos()
     getcursorval()
-    sprite 53 image ?(DECK_BEGIN+discardptr) to 125, 206
+    sprite 53 image ?(DECK_BEGIN+discardptr) to 126, 206
     repeat
+        checkforlose()
+        checkforwin()
         if event(tevent, 5)
             updateinput()
             if debugmode=true
