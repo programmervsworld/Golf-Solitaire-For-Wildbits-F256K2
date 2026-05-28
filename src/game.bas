@@ -207,6 +207,7 @@ proc updateinput()
             sprite 53 image tableau(cursorRow, cursorCol)
             discardval=cursorVal
             tableau(cursorRow, cursorCol) = 255
+            cardsleft = cardsleft - 1
             if cursorRow > 0
                 cursorRow = cursorRow - 1
                 getcursorval()
