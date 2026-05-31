@@ -26,6 +26,7 @@ proc checkforlose()
         bitmap clear 3
         printcenter("You Lose! Hit Return Key To Play Again!", 0)
         input throwaway$
+        cursorCol=0:cursorRow=6
         cls:gameloop()
     endif
 endproc
@@ -35,6 +36,7 @@ proc checkforwin()
         bitmap clear 3
         printcenter("You Won! Hit Return Key To Play Again!", 0)
         input throwaway$
+        cursorCol=0:cursorRow=6
         cls:gameloop()
     endif
 endproc
@@ -194,14 +196,8 @@ proc updateinput()
             updatecursorpos()
         endif
     endif
-    if (keypress=100)
-        if discardptr < 52
-            discardptr = discardptr + 1
-            sprite 53 image ?(DECK_BEGIN+discardptr) to 126, 206
-            getdiscardval()
-            renderboard()
-        endif
-    endif
+endproc
+proc slowupdateinput()
     if (keypress=32)|(joyb(0)&1)
         if discardval = (cursorVal - 1)|discardval = (cursorVal + 1)
             sprite 53 image tableau(cursorRow, cursorCol)
@@ -217,8 +213,17 @@ proc updateinput()
             renderboard()
         endif
     endif
+    if (keypress=100)|(joyy(0)=-1)
+        if discardptr < 52
+            discardptr = discardptr + 1
+            sprite 53 image ?(DECK_BEGIN+discardptr) to 126, 206
+            getdiscardval()
+            renderboard()
+        endif
+    endif
 endproc
 proc gameloop()
+    frames=0
     setup()
     updatecursorpos()
     getcursorval()
@@ -231,6 +236,11 @@ proc gameloop()
             if debugmode=true
                 printdebugstuff()
             endif
+            frames = frames + 1
+        endif
+        if frames = 3
+            slowupdateinput()
+            frames = 0
         endif
     until isRunning=0
 endproc
