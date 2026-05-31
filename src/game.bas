@@ -3,8 +3,8 @@
 #define BG_MAIN_START $10000
 #define SPRITE_START $30000
 REM "Setup Variables and Start Loop"
-cls:cursorCol=0:cursorRow=6:isRunning=1:tevent=0
-debugmode=true:cursorVal=0:cardsleft=0:discardptr=0:discardval=0
+cls:cursorCol=0:cursorRow=6:isRunning=1:tevent=0:spscreen=1
+debugmode=false:cursorVal=0:cardsleft=0:discardptr=0:discardval=0
 REM "This structure holds the card field and their x,y positions"
 dim tableau(7,5):dim tableaux(7,5):dim tableauy(7,5)
 printcenter("Loading backgrounds!", 0)
@@ -21,21 +21,32 @@ proc initboard()
     sprites on
 endproc
 proc checkforlose()
+    spscreen=1
     if discardptr = 52
         sprites off
-        bitmap clear 3
-        printcenter("You Lose! Hit Return Key To Play Again!", 0)
-        input throwaway$
+        text "You Lose!" dim 2 color 1 to 100,100
+        text "Press FIRE to try again" dim 1 color 1 to 70,120
+        repeat
+            if (joyb(0)&1) then spscreen=0
+        until spscreen=0
         cursorCol=0:cursorRow=6
         cls:gameloop()
     endif
 endproc
 proc checkforwin()
+    spscreen=1
     if cardsleft = 0
-          sprites off
-        bitmap clear 3
-        printcenter("You Won! Hit Return Key To Play Again!", 0)
-        input throwaway$
+        sprites on
+        text "You Won!" dim 2 color 1 to 100,100
+        text "Press FIRE to try again" dim 1 color 1 to 70,120
+        repeat
+            for x = 0 to 51
+                sprite x image x to random(320),random(240)
+            next
+            if (joyb(0)&1)
+                spscreen=0
+            endif
+        until spscreen = 0
         cursorCol=0:cursorRow=6
         cls:gameloop()
     endif
@@ -209,7 +220,6 @@ proc slowupdateinput()
                 getcursorval()
                 updatecursorpos()
             endif
-            print "Press!"
             renderboard()
         endif
     endif
