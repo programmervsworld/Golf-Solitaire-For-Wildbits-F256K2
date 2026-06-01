@@ -25,9 +25,10 @@ proc checkforlose()
     if discardptr = 52
         sprites off
         text "You Lose!" dim 2 color 1 to 100,100
-        text "Press FIRE to try again" dim 1 color 1 to 70,120
+        text "Press FIRE or SPACE!" dim 1 color 1 to 90,120
         repeat
-            if (joyb(0)&1) then spscreen=0
+            keypress=inkey()
+            if (keypress=32)|(joyb(0)&1) then spscreen=0
         until spscreen=0
         cursorCol=0:cursorRow=6
         cls:gameloop()
@@ -69,6 +70,8 @@ proc renderboard()
     spritecounter = 35
     cardx = 32
     cardy = 24
+    leftdigit = int(cardsleft / 10)
+    rightdigit = cardsleft % 10
     for r=0 to 6
 	    cardx = 90
         for c=0 to 4
@@ -86,6 +89,8 @@ proc renderboard()
 	    cardy = cardy + 24
     next
     sprite 52 image 52 to 92, 208
+    sprite 54 image 54 + leftdigit to 23,108
+    sprite 55 image 54 + rightdigit to 44,108
 endproc
 proc shuffledeck()
     cls
@@ -207,8 +212,6 @@ proc updateinput()
             updatecursorpos()
         endif
     endif
-endproc
-proc slowupdateinput()
     if (keypress=32)|(joyb(0)&1)
         if discardval = (cursorVal - 1)|discardval = (cursorVal + 1)
             sprite 53 image tableau(cursorRow, cursorCol)
@@ -231,6 +234,9 @@ proc slowupdateinput()
             renderboard()
         endif
     endif
+endproc
+proc slowupdateinput()
+
 endproc
 proc gameloop()
     frames=0
