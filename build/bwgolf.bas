@@ -135,7 +135,7 @@
 2340 initboard()
 2350 shuffledeck()
 2360 dealtoboard()
-2370 sprite 0 image 54
+2370 sprite 0 image 53
 2380 renderboard()
 2390 getdiscardval()
 2400 endproc

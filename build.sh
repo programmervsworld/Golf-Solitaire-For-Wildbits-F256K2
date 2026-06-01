@@ -17,8 +17,8 @@ cd ../build/
 
 zip game.zip background.bin background.pal bwgolf.bas sprites.bin
 
-#sudo python3 fnxmgr.zip --copy sprites.bin
-#read -n 1 -s -p "Press any key to continue..."
+sudo python3 fnxmgr.zip --copy sprites.bin
+read -n 1 -s -p "Press any key to continue..."
 
 #sudo python3 fnxmgr.zip --copy background.pal
 #read -n 1 -s -p "Press any key to continue..."

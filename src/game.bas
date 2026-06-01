@@ -139,7 +139,7 @@ proc setup()
     initboard()
     shuffledeck()
     dealtoboard()
-    sprite 0 image 54
+    sprite 0 image 53
     renderboard()
     getdiscardval()
 endproc
