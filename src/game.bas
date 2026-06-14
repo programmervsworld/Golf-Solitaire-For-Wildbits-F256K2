@@ -89,8 +89,8 @@ proc renderboard()
 	    cardy = cardy + 24
     next
     sprite 52 image 52 to 92, 208
-    sprite 54 image 54 + leftdigit to 23,108
-    sprite 55 image 54 + rightdigit to 44,108
+    sprite 54 image 54 + leftdigit to 23,32
+    sprite 55 image 54 + rightdigit to 44,32
 endproc
 proc shuffledeck()
     cls
@@ -235,9 +235,6 @@ proc updateinput()
         endif
     endif
 endproc
-proc slowupdateinput()
-
-endproc
 proc gameloop()
     frames=0
     setup()
@@ -247,16 +244,12 @@ proc gameloop()
     repeat
         checkforlose()
         checkforwin()
-        if event(tevent, 5)
+        if event(tevent, 10)
             updateinput()
             if debugmode=true
                 printdebugstuff()
             endif
             frames = frames + 1
-        endif
-        if frames = 3
-            slowupdateinput()
-            frames = 0
         endif
     until isRunning=0
 endproc

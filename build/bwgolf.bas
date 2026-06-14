@@ -85,8 +85,8 @@
 1840 cardy = cardy + 24
 1850 next
 1860 sprite 52 image 52 to 92, 208
-1870 sprite 54 image 54 + leftdigit to 23,108
-1880 sprite 55 image 54 + rightdigit to 44,108
+1870 sprite 54 image 54 + leftdigit to 23,32
+1880 sprite 55 image 54 + rightdigit to 44,32
 1890 endproc
 1900 proc shuffledeck()
 1910 cls
@@ -231,29 +231,22 @@
 3300 endif
 3310 endif
 3320 endproc
-3330 proc slowupdateinput()
-3340 
-3350 endproc
-3360 proc gameloop()
-3370 frames=0
-3380 setup()
-3390 updatecursorpos()
-3400 getcursorval()
-3410 sprite 53 image ?($7800+discardptr) to 126, 206
-3420 repeat
-3430 checkforlose()
-3440 checkforwin()
-3450 if event(tevent, 5)
-3460 updateinput()
-3470 if debugmode=true
-3480 printdebugstuff()
-3490 endif
-3500 frames = frames + 1
-3510 endif
-3520 if frames = 3
-3530 slowupdateinput()
-3540 frames = 0
-3550 endif
-3560 until isRunning=0
-3570 endproc
+3330 proc gameloop()
+3340 frames=0
+3350 setup()
+3360 updatecursorpos()
+3370 getcursorval()
+3380 sprite 53 image ?($7800+discardptr) to 126, 206
+3390 repeat
+3400 checkforlose()
+3410 checkforwin()
+3420 if event(tevent, 10)
+3430 updateinput()
+3440 if debugmode=true
+3450 printdebugstuff()
+3460 endif
+3470 frames = frames + 1
+3480 endif
+3490 until isRunning=0
+3500 endproc
 ÿÿÿÿ
